@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', function () {
 
     // Tabs
 
@@ -27,9 +27,9 @@ window.addEventListener('DOMContentLoaded', function() {
     hideTabContent();
     showTabContent();
 
-    tabsParent.addEventListener('click', function(event) {
+    tabsParent.addEventListener('click', function (event) {
         const target = event.target;
-        if(target && target.classList.contains('tabheader__item')) {
+        if (target && target.classList.contains('tabheader__item')) {
             tabs.forEach((item, i) => {
                 if (target === item) {
                     hideTabContent();
@@ -45,10 +45,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
     function getTimeRemaining(endTime) {
         const t = Date.parse(endTime) - Date.parse(new Date()),
-            days = Math.floor( (t/(1000*60*60*24)) ),
-            seconds = Math.floor( (t/1000) % 60 ),
-            minutes = Math.floor( (t/1000/60) % 60 ),
-            hours = Math.floor( (t/(1000*60*60) % 24) );
+            days = Math.floor((t / (1000 * 60 * 60 * 24))),
+            seconds = Math.floor((t / 1000) % 60),
+            minutes = Math.floor((t / 1000 / 60) % 60),
+            hours = Math.floor((t / (1000 * 60 * 60) % 24));
 
         return {
             'total': t,
@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function getZero(num){
+    function getZero(num) {
         if (num >= 0 && num < 10) {
             return '0' + num;
         } else {
@@ -131,16 +131,16 @@ window.addEventListener('DOMContentLoaded', function() {
     });
 
 
-
     // Используем классы для создание карточек меню
 
     class MenuCard {
-        constructor(src, alt, title, descr, price, parentSelector) {
+        constructor(src, alt, title, descr, price, parentSelector, ...classes) {
             this.src = src;
             this.alt = alt;
             this.title = title;
             this.descr = descr;
             this.price = price;
+            this.classes = classes;
             this.parent = document.querySelector(parentSelector);
             this.transfer = 27;
             this.changeToUAH();
@@ -152,6 +152,15 @@ window.addEventListener('DOMContentLoaded', function() {
 
         render() {
             const element = document.createElement('div');
+
+            if (this.classes.length === 0) {
+                this.element = 'menu__item';
+                element.classList.add(this.element)
+            } else {
+                this.classes.forEach(className => element.classList.add(className));
+            }
+
+
             element.innerHTML = `
                 <div class="menu__item">
                     <img src=${this.src} alt=${this.alt}>
