@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', function () {
+window.addEventListener('DOMContentLoaded', function() {
 
     // Tabs
 
@@ -27,9 +27,9 @@ window.addEventListener('DOMContentLoaded', function () {
     hideTabContent();
     showTabContent();
 
-    tabsParent.addEventListener('click', function (event) {
+    tabsParent.addEventListener('click', function(event) {
         const target = event.target;
-        if (target && target.classList.contains('tabheader__item')) {
+        if(target && target.classList.contains('tabheader__item')) {
             tabs.forEach((item, i) => {
                 if (target === item) {
                     hideTabContent();
@@ -41,14 +41,14 @@ window.addEventListener('DOMContentLoaded', function () {
 
     // Timer
 
-    const deadline = '2020-05-11';
+    const deadline = '2022-05-11';
 
     function getTimeRemaining(endTime) {
         const t = Date.parse(endTime) - Date.parse(new Date()),
-            days = Math.floor((t / (1000 * 60 * 60 * 24))),
-            seconds = Math.floor((t / 1000) % 60),
-            minutes = Math.floor((t / 1000 / 60) % 60),
-            hours = Math.floor((t / (1000 * 60 * 60) % 24));
+            days = Math.floor( (t/(1000*60*60*24)) ),
+            seconds = Math.floor( (t/1000) % 60 ),
+            minutes = Math.floor( (t/1000/60) % 60 ),
+            hours = Math.floor( (t/(1000*60*60) % 24) );
 
         return {
             'total': t,
@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    function getZero(num) {
+    function getZero(num){
         if (num >= 0 && num < 10) {
             return '0' + num;
         } else {
@@ -97,8 +97,7 @@ window.addEventListener('DOMContentLoaded', function () {
     // Modal
 
     const modalTrigger = document.querySelectorAll('[data-modal]'),
-        modal = document.querySelector('.modal'),
-        modalCloseBtn = document.querySelector('[data-close]');
+        modal = document.querySelector('.modal');
 
     modalTrigger.forEach(btn => {
         btn.addEventListener('click', openModal);
@@ -114,12 +113,11 @@ window.addEventListener('DOMContentLoaded', function () {
         modal.classList.add('show');
         modal.classList.remove('hide');
         document.body.style.overflow = 'hidden';
+        clearInterval(modalTimerId);
     }
 
-    modalCloseBtn.addEventListener('click', closeModal);
-
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
+        if (e.target === modal || e.target.getAttribute('data-close') === "") {
             closeModal();
         }
     });
@@ -130,6 +128,16 @@ window.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    const modalTimerId = setTimeout(openModal, 300000);
+    // Изменил значение, чтобы не отвлекало
+
+    function showModalByScroll() {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            openModal();
+            window.removeEventListener('scroll', showModalByScroll);
+        }
+    }
+    window.addEventListener('scroll', showModalByScroll);
 
     // Используем классы для создание карточек меню
 
@@ -154,23 +162,20 @@ window.addEventListener('DOMContentLoaded', function () {
             const element = document.createElement('div');
 
             if (this.classes.length === 0) {
-                this.element = 'menu__item';
-                element.classList.add(this.element)
+                this.classes = "menu__item";
+                element.classList.add(this.classes);
             } else {
                 this.classes.forEach(className => element.classList.add(className));
             }
 
-
             element.innerHTML = `
-                <div class="menu__item">
-                    <img src=${this.src} alt=${this.alt}>
-                    <h3 class="menu__item-subtitle">${this.title}</h3>
-                    <div class="menu__item-descr">${this.descr}</div>
-                    <div class="menu__item-divider"></div>
-                    <div class="menu__item-price">
-                        <div class="menu__item-cost">Цена:</div>
-                        <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
-                    </div>
+                <img src=${this.src} alt=${this.alt}>
+                <h3 class="menu__item-subtitle">${this.title}</h3>
+                <div class="menu__item-descr">${this.descr}</div>
+                <div class="menu__item-divider"></div>
+                <div class="menu__item-price">
+                    <div class="menu__item-cost">Цена:</div>
+                    <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
                 </div>
             `;
             this.parent.append(element);
@@ -204,4 +209,76 @@ window.addEventListener('DOMContentLoaded', function () {
         ".menu .container"
     ).render();
 
+    // Forms
+
+    const forms = document.querySelectorAll('form');
+    const message = {
+        loading: 'img/form/spinner.svg',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    };
+
+    forms.forEach(item => {
+        postData(item);
+    });
+
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            form.insertAdjacentElement('afterend', statusMessage);
+
+            const formData = new FormData(form);
+
+            const object = {};
+            formData.forEach(function(value, key){
+                object[key] = value;
+            });
+
+            fetch('server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(object)
+            }).then(data => {
+                console.log(data);
+                showThanksModal(message.success);
+                statusMessage.remove();
+            }).catch(() => {
+                showThanksModal(message.failure);
+            }).finally(() => {
+                form.reset();
+            });
+        });
+    }
+
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        prevModalDialog.classList.add('hide');
+        openModal();
+
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+            <div class="modal__content">
+                <div class="modal__close" data-close>×</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `;
+        document.querySelector('.modal').append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            closeModal();
+        }, 4000);
+    }
 });
