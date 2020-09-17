@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', function () {
 
     // Tabs
 
@@ -27,9 +27,9 @@ window.addEventListener('DOMContentLoaded', function() {
     hideTabContent();
     showTabContent();
 
-    tabsParent.addEventListener('click', function(event) {
+    tabsParent.addEventListener('click', function (event) {
         const target = event.target;
-        if(target && target.classList.contains('tabheader__item')) {
+        if (target && target.classList.contains('tabheader__item')) {
             tabs.forEach((item, i) => {
                 if (target === item) {
                     hideTabContent();
@@ -45,10 +45,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
     function getTimeRemaining(endTime) {
         const t = Date.parse(endTime) - Date.parse(new Date()),
-            days = Math.floor( (t/(1000*60*60*24)) ),
-            seconds = Math.floor( (t/1000) % 60 ),
-            minutes = Math.floor( (t/1000/60) % 60 ),
-            hours = Math.floor( (t/(1000*60*60) % 24) );
+            days = Math.floor((t / (1000 * 60 * 60 * 24))),
+            seconds = Math.floor((t / 1000) % 60),
+            minutes = Math.floor((t / 1000 / 60) % 60),
+            hours = Math.floor((t / (1000 * 60 * 60) % 24));
 
         return {
             'total': t,
@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function getZero(num){
+    function getZero(num) {
         if (num >= 0 && num < 10) {
             return '0' + num;
         } else {
@@ -129,14 +129,16 @@ window.addEventListener('DOMContentLoaded', function() {
     });
 
     const modalTimerId = setTimeout(openModal, 300000);
+
     // Изменил значение, чтобы не отвлекало
 
     function showModalByScroll() {
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
             openModal();
-            window.removeEventListener('scroll', showModalByScroll);
+            // window.removeEventListener('scroll', showModalByScroll);
         }
     }
+
     window.addEventListener('scroll', showModalByScroll);
 
     // Используем классы для создание карточек меню
@@ -182,32 +184,22 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        ".menu .container"
-    ).render();
+    const getResources = async (url,) => {
+        const res = await fetch(url);
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        14,
-        ".menu .container"
-    ).render();
+        if (!res.ok) {
+            throw new Error(`Couldn't fetch ${url}, status: ${res.status}`)
+        }
 
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        21,
-        ".menu .container"
-    ).render();
+        return await res.json();
+    };
+
+    getResources('  http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, ".menu .container").render();
+            });
+        })
 
     // Forms
 
@@ -219,10 +211,22 @@ window.addEventListener('DOMContentLoaded', function() {
     };
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -236,22 +240,15 @@ window.addEventListener('DOMContentLoaded', function() {
 
             const formData = new FormData(form);
 
-            const object = {};
-            formData.forEach(function(value, key){
-                object[key] = value;
-            });
+            const json = JSON.stringify(Object.fromEntries(formData.entries())) // formData модифицировал в масив масивов, после чего модифицировал в обект и сделал с него JSON
 
-            fetch('server.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(object)
-            }).then(data => {
-                console.log(data);
-                showThanksModal(message.success);
-                statusMessage.remove();
-            }).catch(() => {
+
+            postData('http://localhost:3000/requests', json)
+                .then(data => {
+                    console.log(data);
+                    showThanksModal(message.success);
+                    statusMessage.remove();
+                }).catch(() => {
                 showThanksModal(message.failure);
             }).finally(() => {
                 form.reset();
@@ -281,4 +278,9 @@ window.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }, 4000);
     }
+
+    fetch('http://localhost:3000/menu')
+        .then(data => data.json())
+        .then(res => res)
+
 });
