@@ -324,10 +324,20 @@ window.addEventListener('DOMContentLoaded', function () {
         dot.setAttribute('data-slide-to', i + 1);
         dot.classList.add('dot');
         if (i === 0) {
-            dot.style.opacity = 1;
+            dot.style.opacity = '1';
         }
         indicators.append(dot);
         dots.push(dot);
+    }
+
+    function currentSlide () {
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+        dots.forEach(dot => dot.style.opacity = '.5')
+        dots[slideIndex - 1].style.opacity = '1';
     }
 
 
@@ -346,20 +356,14 @@ window.addEventListener('DOMContentLoaded', function () {
             slideIndex++;
         }
 
-        if (slides.length < 10) {
-            current.textContent = `0${slideIndex}`;
-        } else {
-            current.textContent = slideIndex;
-        }
-        dots.forEach(dot => dot.style.opacity = '.5')
-        dots[slideIndex - 1].style.opacity = 1;
+        currentSlide();
     })
 
     prev.addEventListener('click', () => {
         if (offset === 0) {
-            offset = +width.slice(0, width.length - 2) * (slides.length - 1)
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1);
         } else {
-            offset -= +width.slice(0, width.length - 2)
+            offset -= +width.slice(0, width.length - 2);
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`;
@@ -370,14 +374,7 @@ window.addEventListener('DOMContentLoaded', function () {
             slideIndex--;
         }
 
-        if (slides.length < 10) {
-            current.textContent = `0${slideIndex}`;
-        } else {
-            current.textContent = slideIndex;
-        }
-
-        dots.forEach(dot => dot.style.opacity = '.5')
-        dots[slideIndex - 1].style.opacity = 1;
+        currentSlide();
     });
 
     dots.forEach(dot => {
@@ -396,7 +393,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
 
             dots.forEach(dot => dot.style.opacity = ".5");
-            dots[slideIndex-1].style.opacity = 1;
+            dots[slideIndex-1].style.opacity = '1';
         });
     });
 
