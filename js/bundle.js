@@ -332,7 +332,7 @@ function modal(triggerSelector, modalSelector, modalTimerId) {
     });
 
     modal.addEventListener('click', (e) => {
-        if (e.target === modal || e.target.getAttribute('data-close') == "") {
+        if (e.target === modal || e.target.getAttribute('data-close') === "") {
             closeModal(modalSelector);
         }
     });
@@ -599,8 +599,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => __WEBPACK_DEFAULT_EXPORT__
 /* harmony export */ });
 function timer(id, deadline) {
-    function getTimeRemaining(endtime) {
-        const t = Date.parse(endtime) - Date.parse(new Date()),
+    function getTimeRemaining(endTime) {
+        const t = Date.parse(endTime) -  Date.parse(new Date()),
             days = Math.floor( (t/(1000*60*60*24)) ),
             seconds = Math.floor( (t/1000) % 60 ),
             minutes = Math.floor( (t/1000/60) % 60 ),
@@ -623,7 +623,7 @@ function timer(id, deadline) {
         }
     }
 
-    function setClock(selector, endtime) {
+    function setClock(selector, endTime) {
 
         const timer = document.querySelector(selector),
             days = timer.querySelector("#days"),
@@ -635,7 +635,7 @@ function timer(id, deadline) {
         updateClock();
 
         function updateClock() {
-            const t = getTimeRemaining(endtime);
+            const t = getTimeRemaining(endTime);
 
             days.innerHTML = getZero(t.days);
             hours.innerHTML = getZero(t.hours);
@@ -686,7 +686,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_3__.default)('.tabheader__item', '.tabcontent', '.tabheader__items', 'tabheader__item_active');
     (0,_modules_modal__WEBPACK_IMPORTED_MODULE_2__.default)('[data-modal]', '.modal', modalTimerId);
-    (0,_modules_timer__WEBPACK_IMPORTED_MODULE_4__.default)('.timer', '2020-06-11');
+    (0,_modules_timer__WEBPACK_IMPORTED_MODULE_4__.default)('.timer', '2022-06-11');
     (0,_modules_cards__WEBPACK_IMPORTED_MODULE_0__.default)();
     (0,_modules_calculator__WEBPACK_IMPORTED_MODULE_5__.default)();
     (0,_modules_forms__WEBPACK_IMPORTED_MODULE_1__.default)('form', modalTimerId);
@@ -701,6 +701,7 @@ window.addEventListener('DOMContentLoaded', function() {
         field: '.offer__slider-inner'
     });
 });
+
 
 /***/ }),
 

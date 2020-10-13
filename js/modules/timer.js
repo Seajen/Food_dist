@@ -1,6 +1,6 @@
 function timer(id, deadline) {
-    function getTimeRemaining(endtime) {
-        const t = Date.parse(endtime) - Date.parse(new Date()),
+    function getTimeRemaining(endTime) {
+        const t = Date.parse(endTime) -  Date.parse(new Date()),
             days = Math.floor( (t/(1000*60*60*24)) ),
             seconds = Math.floor( (t/1000) % 60 ),
             minutes = Math.floor( (t/1000/60) % 60 ),
